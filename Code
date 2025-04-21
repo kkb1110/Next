@@ -1,300 +1,293 @@
-#include <stdio.h>
-#include <limits.h>
-#include <stdbool.h>
+// ==========================
+// 1. Abstract Class Example
+// ==========================
 
-#define V 5  // Number of vertices in the graph
+abstract class ThreeDObject {
+    protected double dim1, dim2, dim3;
 
-// Function to find the vertex with minimum key value, from the set of vertices not yet included in MST
-int minKey(int key[], bool mstSet[]) {
-    int min = INT_MAX, min_index;
-
-    for (int v = 0; v < V; v++)
-        if (mstSet[v] == false && key[v] < min)
-            min = key[v], min_index = v;
-
-    return min_index;
+    abstract double wholeSurfaceArea();
+    abstract double volume();
 }
 
-// Function to print the constructed MST
-void printMST(int parent[], int graph[V][V]) {
-    printf("Edge \tWeight\n");
-    for (int i = 1; i < V; i++)
-        printf("%d - %d \t%d \n", parent[i], i, graph[i][parent[i]]);
+class Box extends ThreeDObject {
+    Box(double l, double b, double h) {
+        dim1 = l;
+        dim2 = b;
+        dim3 = h;
+    }
+
+    double wholeSurfaceArea() {
+        return 2 * (dim1*dim2 + dim2*dim3 + dim3*dim1);
+    }
+
+    double volume() {
+        return dim1 * dim2 * dim3;
+    }
 }
 
-// Function to construct and print MST using Prim's algorithm
-void primMST(int graph[V][V]) {
-    int parent[V];  // Array to store MST
-    int key[V];     // Key values used to pick the minimum weight edge
-    bool mstSet[V]; // To represent the set of vertices included in MST
+class Cube extends ThreeDObject {
+    Cube(double side) {
+        dim1 = dim2 = dim3 = side;
+    }
 
-    // Initialize all keys as INFINITE and mstSet[] as false
-    for (int i = 0; i < V; i++)
-        key[i] = INT_MAX, mstSet[i] = false;
+    double wholeSurfaceArea() {
+        return 6 * dim1 * dim1;
+    }
 
-    // Always include first vertex in MST
-    key[0] = 0;    // Make key 0 so that this vertex is picked first
-    parent[0] = -1; // First node is always root of MST
+    double volume() {
+        return dim1 * dim1 * dim1;
+    }
+}
 
-    // The MST will have V-1 edges
-    for (int count = 0; count < V - 1; count++) {
-        // Pick the minimum key vertex from the set of vertices not yet included in MST
-        int u = minKey(key, mstSet);
+class Cylinder extends ThreeDObject {
+    Cylinder(double radius, double height) {
+        dim1 = radius;
+        dim2 = height;
+    }
 
-        // Add the picked vertex to the MST Set
-        mstSet[u] = true;
+    double wholeSurfaceArea() {
+        return 2 * Math.PI * dim1 * (dim1 + dim2);
+    }
 
-        // Update key values and parent index of the adjacent vertices
-        for (int v = 0; v < V; v++) {
-            // graph[u][v] is nonzero only for adjacent vertices of u
-            // mstSet[v] is false for vertices not yet included in MST
-            // Update the key only if graph[u][v] is smaller than key[v]
-            if (graph[u][v] && mstSet[v] == false && graph[u][v] < key[v])
-                parent[v] = u, key[v] = graph[u][v];
+    double volume() {
+        return Math.PI * dim1 * dim1 * dim2;
+    }
+}
+
+class Cone extends ThreeDObject {
+    Cone(double radius, double height) {
+        dim1 = radius;
+        dim2 = height;
+    }
+
+    double wholeSurfaceArea() {
+        double slantHeight = Math.sqrt(dim1*dim1 + dim2*dim2);
+        return Math.PI * dim1 * (dim1 + slantHeight);
+    }
+
+    double volume() {
+        return (1.0 / 3) * Math.PI * dim1 * dim1 * dim2;
+    }
+}
+
+// ==========================
+// 2. Interface + Inheritance
+// ==========================
+
+interface Department {
+    void getData();
+    void printData();
+}
+
+class Hostel {
+    String hostelName, hostelLocation;
+    int noOfRooms;
+
+    void getHostelData() {
+        // Logic for input
+    }
+
+    void printHostelData() {
+        // Print logic
+    }
+}
+
+class Student extends Hostel implements Department {
+    String studentName, regNo, electiveSubject, depName, depHead;
+    float avgMarks;
+
+    public void getData() {
+        // Input logic
+    }
+
+    public void printData() {
+        // Output logic
+    }
+}
+
+// ==========================
+// 3. Package Example
+// ==========================
+
+// File: MathOps/Operations.java
+/*
+package MathOps;
+
+public class Operations {
+    public static int add(int a, int b) {
+        return a + b;
+    }
+
+    public static int multiply(int a, int b) {
+        return a * b;
+    }
+}
+*/
+
+// File: PackageTest.java
+/*
+import MathOps.Operations;
+import java.util.Scanner;
+
+public class PackageTest {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int a = sc.nextInt(), b = sc.nextInt();
+        System.out.println("Sum: " + Operations.add(a, b));
+        System.out.println("Product: " + Operations.multiply(a, b));
+    }
+}
+*/
+
+// ==========================
+// 4. Factorial with Exception
+// ==========================
+
+public class Factorial {
+    static long[] facts = new long[21];
+
+    static long factorial(int x) {
+        if (x < 0)
+            throw new IllegalArgumentException("Value of x must be positive");
+        if (x >= facts.length)
+            throw new IllegalArgumentException("Result will overflow.");
+        if (facts[x] != 0)
+            return facts[x];
+        facts[0] = 1;
+        for (int i = 1; i <= x; i++) {
+            facts[i] = facts[i - 1] * i;
+        }
+        return facts[x];
+    }
+
+    public static void main(String[] args) {
+        System.out.println(factorial(5));
+    }
+}
+
+// ==========================
+// 5. Manual Exception Example
+// ==========================
+
+public class ThrowExample {
+    public static void main(String[] args) {
+        try {
+            throw new ArithmeticException("Manually thrown exception");
+        } catch (ArithmeticException e) {
+            System.out.println("Caught Exception: " + e.getMessage());
         }
     }
-
-    // Print the constructed MST
-    printMST(parent, graph);
 }
 
-// Main function
-int main() {
-    // Graph represented as an adjacency matrix
-    int graph[V][V] = {
-        {0, 2, 0, 6, 0},
-        {2, 0, 3, 8, 5},
-        {0, 3, 0, 0, 7},
-        {6, 8, 0, 0, 9},
-        {0, 5, 7, 9, 0}
-    };
+// ==========================
+// 6. 1D Array Sorting
+// ==========================
 
-    // Function call to compute MST
-    primMST(graph);
+import java.util.Arrays;
 
-    return 0;
-}
-
-#include <stdio.h>
-#include <limits.h>
-
-#define V 3 // Number of vertices in the graph
-
-// Function to print the shortest path matrix
-void printSolution(int dist[][V]) {
-    printf("The following matrix shows the shortest distances between every pair of vertices:\n");
-    for (int i = 0; i < V; i++) {
-        for (int j = 0; j < V; j++) {
-            if (dist[i][j] == INT_MAX)
-                printf(" INF ");
-            else
-                printf(" %3d ", dist[i][j]);
-        }
-        printf("\n");
+public class SortArray {
+    public static void main(String[] args) {
+        int[] arr = {5, 3, 8, 2, 1};
+        Arrays.sort(arr);
+        for (int num : arr)
+            System.out.print(num + " ");
     }
 }
 
-// Floyd-Warshall Algorithm
-void floydWarshall(int graph[][V]) {
-    int dist[V][V];
+// ==========================
+// 7. Inheritance - Vehicle
+// ==========================
 
-    // Initialize distance matrix same as the input graph
-    for (int i = 0; i < V; i++)
-        for (int j = 0; j < V; j++)
-            dist[i][j] = graph[i][j];
+class Vehicle {
+    protected String licenceNumber, color, ownerName;
+    protected int speed;
 
-    // Run Floyd-Warshall algorithm
-    for (int k = 0; k < V; k++) {
-        // Pick all vertices as source one by one
-        for (int i = 0; i < V; i++) {
-            // Pick all vertices as destination for the above source
-            for (int j = 0; j < V; j++) {
-                // If vertex k is on the shortest path from i to j, then update dist[i][j]
-                if (dist[i][k] != INT_MAX && dist[k][j] != INT_MAX 
-                    && dist[i][k] + dist[k][j] < dist[i][j]) {
-                    dist[i][j] = dist[i][k] + dist[k][j];
-                }
-            }
-        }
-
-        // Print intermediate step matrices
-        printf("\nIntermediate Distance Matrix A^%d:\n", k + 1);
-        printSolution(dist);
+    void showData() {
+        System.out.println("This is a vehicle class.");
     }
-
-    // Print final shortest path matrix
-    printf("\nFinal Shortest Path Matrix:\n");
-    printSolution(dist);
 }
 
-// Main function
-int main() {
-    // Input graph (INF represents no direct edge)
-    int graph[V][V] = {
-        {0, 4, 11},
-        {6, 0, 2},
-        {INF, INF, 0}
-    };
+class Bus extends Vehicle {
+    private String routeNo;
 
-    // Execute Floyd-Warshall Algorithm
-    floydWarshall(graph);
-
-    return 0;
-}
-
-#include <stdio.h>
-#include <limits.h>
-
-// Function to print the optimal parenthesization
-void printParenthesis(int i, int j, int s[][100], char *name) {
-    if (i == j) {
-        printf("%c", (*name)++);
-        return;
-    }
-    printf("(");
-    printParenthesis(i, s[i][j], s, name);
-    printParenthesis(s[i][j] + 1, j, s, name);
-    printf(")");
-}
-
-// Function to compute the minimum number of scalar multiplications
-int matrixChainOrder(int p[], int n) {
-    int m[100][100]; // Minimum number of multiplications
-    int s[100][100]; // Stores the k value for optimal split
-
-    // Initialize m[i][i] as 0 (multiplication of identical matrix is 0)
-    for (int i = 1; i < n; i++) {
-        m[i][i] = 0;
+    Bus(String routeNo) {
+        this.routeNo = routeNo;
     }
 
-    // L is chain length
-    for (int L = 2; L < n; L++) {
-        for (int i = 1; i < n - L + 1; i++) {
-            int j = i + L - 1;
-            m[i][j] = INT_MAX;
+    void showData() {
+        super.showData();
+        System.out.println("Bus Route No: " + routeNo);
+    }
+}
 
-            // Find the best place to split
-            for (int k = i; k < j; k++) {
-                int q = m[i][k] + m[k + 1][j] + p[i - 1] * p[k] * p[j];
+class Car extends Vehicle {
+    private String manufacturerName;
 
-                if (q < m[i][j]) {
-                    m[i][j] = q;
-                    s[i][j] = k; // Store k for parenthesization
-                }
-            }
+    Car(String manufacturerName) {
+        this.manufacturerName = manufacturerName;
+    }
+
+    void showData() {
+        super.showData();
+        System.out.println("Car Manufacturer: " + manufacturerName);
+    }
+}
+
+// ==========================
+// 8. 2D Array Multiplication
+// ==========================
+
+public class MatrixMultiply {
+    public static void main(String[] args) {
+        int[][] A = {{1, 2}, {3, 4}};
+        int[][] B = {{5, 6}, {7, 8}};
+        int[][] result = new int[2][2];
+
+        for (int i = 0; i < 2; i++)
+            for (int j = 0; j < 2; j++)
+                for (int k = 0; k < 2; k++)
+                    result[i][j] += A[i][k] * B[k][j];
+
+        for (int[] row : result) {
+            for (int val : row)
+                System.out.print(val + " ");
+            System.out.println();
         }
     }
-
-    // Print the optimal parenthesization
-    printf("Optimal Parenthesization: ");
-    char name = 'A';
-    printParenthesis(1, n - 1, s, &name);
-    printf("\n");
-
-    return m[1][n - 1]; // Minimum multiplication cost
 }
 
-// Main function
-int main() {
-    int n;
-    
-    // Input number of matrices
-    printf("Enter the number of matrices: ");
-    scanf("%d", &n);
+// ==========================
+// 9. Telephone Billing System
+// ==========================
 
-    int p[n + 1];
+import java.util.*;
 
-    // Input dimensions
-    printf("Enter the dimensions: ");
-    for (int i = 0; i <= n; i++) {
-        scanf("%d", &p[i]);
+class Call {
+    boolean isSTD;
+    int duration;
+
+    Call(boolean isSTD, int duration) {
+        this.isSTD = isSTD;
+        this.duration = duration;
     }
 
-    // Compute the minimum scalar multiplication cost
-    int minCost = matrixChainOrder(p, n + 1);
-    printf("Minimum number of scalar multiplications: %d\n", minCost);
-
-    return 0;
-}
-
-#include <stdio.h>
-#include <limits.h>
-#include <stdbool.h>
-
-#define MAX 100 // Maximum number of vertices
-
-// Function to find the vertex with the minimum key value
-int minKey(int key[], bool mstSet[], int V) {
-    int min = INT_MAX, min_index;
-
-    for (int v = 0; v < V; v++) {
-        if (!mstSet[v] && key[v] < min) {
-            min = key[v];
-            min_index = v;
-        }
-    }
-    return min_index;
-}
-
-// Function to print the constructed MST
-void printMST(int parent[], int graph[MAX][MAX], int V) {
-    printf("\nMinimum Cost Spanning Tree (MST):\n");
-    printf("Edge   Weight\n");
-    for (int i = 1; i < V; i++) {
-        printf("%d - %d    %d\n", parent[i], i, graph[i][parent[i]]);
+    double calculateBill() {
+        if (!isSTD)
+            return Math.ceil(duration / 3.0);
+        else
+            return duration * 1.5;
     }
 }
 
-// Function to implement Prim's algorithm
-void primMST(int graph[MAX][MAX], int V) {
-    int parent[V];  // Stores the MST
-    int key[V];     // Key values for picking minimum weight edge
-    bool mstSet[V]; // To track vertices included in MST
+public class BillingSystem {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("STD call? true/false");
+        boolean isSTD = sc.nextBoolean();
+        System.out.println("Enter duration in minutes:");
+        int duration = sc.nextInt();
 
-    // Initialize all keys as INFINITE and mstSet[] as false
-    for (int i = 0; i < V; i++) {
-        key[i] = INT_MAX;
-        mstSet[i] = false;
+        Call call = new Call(isSTD, duration);
+        System.out.println("Call bill: " + call.calculateBill());
     }
-
-    key[0] = 0;      // Start from the first vertex
-    parent[0] = -1;  // First node is always the root of MST
-
-    for (int count = 0; count < V - 1; count++) {
-        int u = minKey(key, mstSet, V);
-        mstSet[u] = true;
-
-        // Update key and parent for adjacent vertices
-        for (int v = 0; v < V; v++) {
-            if (graph[u][v] && !mstSet[v] && graph[u][v] < key[v]) {
-                parent[v] = u;
-                key[v] = graph[u][v];
-            }
-        }
-    }
-
-    // Print the MST
-    printMST(parent, graph, V);
-}
-
-// Main function
-int main() {
-    int V, graph[MAX][MAX];
-
-    // Input number of vertices
-    printf("Enter the number of vertices: ");
-    scanf("%d", &V);
-
-    // Input adjacency matrix
-    printf("\nEnter the adjacency matrix (0 for no edge):\n");
-    for (int i = 0; i < V; i++) {
-        for (int j = 0; j < V; j++) {
-            scanf("%d", &graph[i][j]);
-        }
-    }
-
-    // Run Prim's Algorithm
-    primMST(graph, V);
-
-    return 0;
 }
